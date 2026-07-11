@@ -1,0 +1,19 @@
+<?php
+
+declare(strict_types=1);
+
+$closure = static function (\DateTime $date): \DateTime {
+    return $date;
+};
+
+$arrow = static fn(\DateTime $date): \DateTime => $date;
+
+enum ClockState
+{
+    case Ready;
+
+    public function at(\DateTime $date): \DateTime
+    {
+        return $date;
+    }
+}

@@ -1,0 +1,10 @@
+<?php
+
+declare(strict_types=1);
+
+use DateTime;
+
+$start = new DateTime('2026-01-01');
+$start->modify('+1 day');
+
+echo $start->format('Y-m-d');

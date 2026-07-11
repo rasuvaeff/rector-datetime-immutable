@@ -1,0 +1,8 @@
+<?php
+
+declare(strict_types=1);
+
+$deadline = new \DateTimeImmutable('2026-01-01');
+$deadline = $deadline->modify('+1 month');
+
+echo $deadline->format('Y-m-d');

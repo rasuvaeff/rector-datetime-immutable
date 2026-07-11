@@ -1,0 +1,27 @@
+{
+    "$schema": "vendor/infection/infection/resources/schema.json",
+    "source": {
+        "directories": ["src"],
+        // The rule shells are reflection/Scope glue exercised only through the
+        // e2e suite (real subprocesses), which in-process mutation coverage
+        // cannot see. The CLI and mutable-boundary reflection glue are covered
+        // by their own Rector subprocess e2e tests. Catalog/type decision logic
+        // lives in the unit-covered Internal classes.
+        "excludes": [
+            "Cli",
+            "Internal/MutableDateTimeBoundaryAnalyzer.php",
+            "DateTimeImmutableRector.php",
+            "LostDateTimeMutationRector.php",
+            "MutableDateTimeBoundaryRector.php"
+        ]
+    },
+    "logs": {
+        "text": "php://stderr",
+        "summary": "build/infection-summary.log"
+    },
+    "testFramework": "testo",
+    "minMsi": 100,
+    "mutators": {
+        "@default": true
+    }
+}

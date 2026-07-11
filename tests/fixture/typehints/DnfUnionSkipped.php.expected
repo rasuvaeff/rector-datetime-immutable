@@ -1,0 +1,11 @@
+<?php
+
+declare(strict_types=1);
+
+interface Marker
+{
+}
+
+function choose((\DateTimeImmutable&Marker)|\DateTime $date): void
+{
+}

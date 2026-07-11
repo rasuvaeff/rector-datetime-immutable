@@ -1,0 +1,8 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App;
+
+$imported = new \DateTimeImmutable('tomorrow');
+$viaImport = \DateTimeImmutable::createFromFormat('Y-m-d', '2026-01-01');

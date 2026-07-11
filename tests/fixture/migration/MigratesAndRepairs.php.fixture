@@ -1,0 +1,8 @@
+<?php
+
+declare(strict_types=1);
+
+$deadline = new \DateTime('2026-01-01');
+$deadline->modify('+1 month');
+
+echo $deadline->format('Y-m-d');

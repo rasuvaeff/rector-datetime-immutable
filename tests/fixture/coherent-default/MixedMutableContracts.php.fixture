@@ -1,0 +1,162 @@
+<?php
+
+declare(strict_types=1);
+
+final class MixedMarkedProperties
+{
+    /** @mutable-datetime */
+    private \DateTime $legacy;
+
+    private \DateTime $modern;
+
+    public function __construct()
+    {
+        $this->legacy = new \DateTime('2026-01-01');
+        $this->modern = new \DateTime('2026-01-01');
+    }
+
+    public function contractsHold(): bool
+    {
+        return $this->legacy::class === \DateTime::class
+            && $this->modern::class === \DateTimeImmutable::class;
+    }
+}
+
+final class MixedOrmProperties
+{
+    #[\Doctrine\ORM\Mapping\Column(type: 'datetime')]
+    private \DateTime $legacy;
+
+    private \DateTime $modern;
+
+    public function __construct()
+    {
+        $this->legacy = new \DateTime('2026-02-01');
+        $this->modern = new \DateTime('2026-02-01');
+    }
+
+    public function contractsHold(): bool
+    {
+        return $this->legacy::class === \DateTime::class
+            && $this->modern::class === \DateTimeImmutable::class;
+    }
+}
+
+abstract class MixedPropertyBase
+{
+    protected \DateTime $inherited;
+}
+
+final class MixedInheritedProperties extends MixedPropertyBase
+{
+    protected \DateTime $inherited;
+
+    private \DateTime $own;
+
+    public function __construct()
+    {
+        $this->inherited = new \DateTime('2026-03-01');
+        $this->own = new \DateTime('2026-03-01');
+    }
+
+    public function contractsHold(): bool
+    {
+        return $this->inherited::class === \DateTime::class
+            && $this->own::class === \DateTimeImmutable::class;
+    }
+}
+
+final class MixedMarkedMethod
+{
+    /** @mutable-datetime */
+    private \DateTime $legacy;
+
+    private \DateTime $modern;
+
+    private object $returned;
+
+    public function __construct()
+    {
+        $this->returned = $this->initialize();
+    }
+
+    /** @mutable-datetime */
+    private function initialize(
+        \DateTime $seed = new \DateTime('2026-04-01'),
+    ): \DateTime {
+        $this->legacy = new \DateTime('2026-04-01');
+        $this->modern = new \DateTime('2026-04-01');
+
+        return new \DateTime($seed->format('Y-m-d'));
+    }
+
+    public function contractsHold(): bool
+    {
+        return $this->legacy::class === \DateTime::class
+            && $this->modern::class === \DateTimeImmutable::class
+            && $this->returned::class === \DateTime::class;
+    }
+}
+
+final class MixedPromotedProperties
+{
+    public function __construct(
+        #[\Doctrine\ORM\Mapping\Column(type: 'datetime')]
+        private \DateTime $legacy = new \DateTime('2026-05-01'),
+        private \DateTime $modern = new \DateTime('2026-05-01'),
+    ) {
+    }
+
+    public function contractsHold(): bool
+    {
+        return $this->legacy::class === \DateTime::class
+            && $this->modern::class === \DateTimeImmutable::class;
+    }
+}
+
+final class OtherStaticTarget
+{
+    public static \DateTime $legacy;
+}
+
+final class MixedStaticProperties
+{
+    /** @mutable-datetime */
+    private static \DateTime $legacy;
+
+    private static \DateTime $modern;
+
+    public static function initialize(): void
+    {
+        self::$legacy = new \DateTime('2026-06-01');
+        self::$modern = new \DateTime('2026-06-01');
+        OtherStaticTarget::$legacy = new \DateTime('2026-06-01');
+    }
+
+    public static function contractsHold(): bool
+    {
+        return self::$legacy::class === \DateTime::class
+            && self::$modern::class === \DateTimeImmutable::class
+            && OtherStaticTarget::$legacy::class === \DateTimeImmutable::class;
+    }
+}
+
+MixedStaticProperties::initialize();
+
+if (!MixedStaticProperties::contractsHold()) {
+    throw new \RuntimeException('Static properties received incoherent DateTime implementations');
+}
+
+$contracts = [
+    new MixedMarkedProperties(),
+    new MixedOrmProperties(),
+    new MixedInheritedProperties(),
+    new MixedMarkedMethod(),
+    new MixedPromotedProperties(),
+];
+
+foreach ($contracts as $contract) {
+    if (!$contract->contractsHold()) {
+        throw new \RuntimeException($contract::class . ' received an incoherent DateTime implementation');
+    }
+}

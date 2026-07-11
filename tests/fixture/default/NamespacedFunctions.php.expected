@@ -1,0 +1,18 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App;
+
+function date_create(string $value): string
+{
+    return 'custom:' . $value;
+}
+
+function date_create_immutable(string $value): string
+{
+    return 'immutable-custom:' . $value;
+}
+
+$custom = date_create('today');
+$global = \date_create_immutable('today');

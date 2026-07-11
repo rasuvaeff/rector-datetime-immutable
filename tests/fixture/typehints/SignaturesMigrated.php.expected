@@ -1,0 +1,27 @@
+<?php
+
+declare(strict_types=1);
+
+final class Scheduler
+{
+    private \DateTimeImmutable $lastRun;
+    private ?\DateTimeImmutable $nextRun = null;
+
+    public function __construct(
+        private \DateTimeImmutable $createdAt,
+    ) {
+        $this->lastRun = new \DateTimeImmutable();
+    }
+
+    public function reschedule(\DateTimeImmutable $when): \DateTimeImmutable|false
+    {
+        $this->nextRun = $when;
+
+        return $this->lastRun;
+    }
+}
+
+function firstOf(\DateTimeImmutable $candidate, ?\DateTimeImmutable $fallback): ?\DateTimeImmutable
+{
+    return $fallback ?? $candidate;
+}

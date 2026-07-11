@@ -1,0 +1,7 @@
+<?php
+
+declare(strict_types=1);
+
+$moment = new \DateTime('2026-01-01');
+// @mutable-datetime-boundary: parameter $object requires DateTime
+date_modify($moment, '+1 day');

@@ -1,0 +1,29 @@
+<?php
+
+declare(strict_types=1);
+
+abstract class BaseEvent
+{
+    public \DateTime $at;
+}
+
+final class ChildEvent extends BaseEvent
+{
+    public \DateTime $at;
+    private \DateTime $own;
+}
+
+abstract class BasePromoted
+{
+    protected \DateTime $placedAt;
+}
+
+final class ChildPromoted extends BasePromoted
+{
+    private \DateTime $own;
+
+    public function __construct(
+        protected \DateTime $placedAt,
+    ) {
+    }
+}

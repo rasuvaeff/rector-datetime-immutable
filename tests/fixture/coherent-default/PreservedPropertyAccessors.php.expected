@@ -1,0 +1,111 @@
+<?php
+
+declare(strict_types=1);
+
+final class OrmAuditRecord
+{
+    #[\Doctrine\ORM\Mapping\Column(type: 'datetime')]
+    private \DateTime $happenedAt;
+
+    private \DateTimeImmutable $processedAt;
+
+    public function __construct()
+    {
+        $this->happenedAt = new \DateTime('2026-01-01');
+        $this->processedAt = new \DateTimeImmutable('2026-01-02');
+    }
+
+    public function happenedAt(): \DateTime
+    {
+        return $this->happenedAt;
+    }
+
+    /** @mutable-datetime */
+    public function rewind(\DateTime $happenedAt): void
+    {
+        $this->happenedAt = $happenedAt;
+    }
+
+    public function processedAt(): \DateTimeImmutable
+    {
+        return $this->processedAt;
+    }
+
+    public function reprocess(\DateTimeImmutable $processedAt): void
+    {
+        $this->processedAt = $processedAt;
+    }
+}
+
+final class PromotedOrmClock
+{
+    public function startedAt(): \DateTime
+    {
+        return $this->startedAt;
+    }
+
+    public function __construct(
+        #[\Doctrine\ORM\Mapping\Column(type: 'datetime')]
+        private \DateTime $startedAt = new \DateTime('2026-02-01'),
+        private \DateTimeImmutable $syncedAt = new \DateTimeImmutable('2026-02-02'),
+    ) {
+    }
+
+    public function syncedAt(): \DateTimeImmutable
+    {
+        return $this->syncedAt;
+    }
+}
+
+final class MarkedFallbackClock
+{
+    public function current(): \DateTime
+    {
+        return $this->frozenAt ?? new \DateTime('2026-03-01');
+    }
+
+    public function preferred(bool $legacy): \DateTime
+    {
+        return $legacy ? $this->frozenAt : new \DateTime('2026-03-02');
+    }
+
+    /** @mutable-datetime */
+    private ?\DateTime $frozenAt = null;
+}
+
+final class StaticBootClock
+{
+    /** @mutable-datetime */
+    private static \DateTime $bootedAt;
+
+    public static function boot(): void
+    {
+        self::$bootedAt = new \DateTime('2026-04-01');
+    }
+
+    public static function bootedAt(): \DateTime
+    {
+        return self::$bootedAt;
+    }
+}
+
+StaticBootClock::boot();
+
+$record = new OrmAuditRecord();
+$record->rewind(new \DateTime('2026-01-03'));
+$record->reprocess(new \DateTimeImmutable('2026-01-04'));
+
+$clock = new PromotedOrmClock();
+$fallback = new MarkedFallbackClock();
+
+if (
+    $record->happenedAt()::class !== \DateTime::class
+    || $record->processedAt()::class !== \DateTimeImmutable::class
+    || $clock->startedAt()::class !== \DateTime::class
+    || $clock->syncedAt()::class !== \DateTimeImmutable::class
+    || $fallback->current()::class !== \DateTime::class
+    || $fallback->preferred(false)::class !== \DateTime::class
+    || StaticBootClock::bootedAt()::class !== \DateTime::class
+) {
+    throw new \RuntimeException('Preserved-property accessors received incoherent DateTime implementations');
+}

@@ -1,0 +1,13 @@
+<?php
+
+declare(strict_types=1);
+
+$date = new \DateTimeImmutable('2026-01-01');
+$date = $date->modify('+1 day');
+$date = $date->setTime(0, 0);
+$date = $date->add(new \DateInterval('P1D'));
+$date = $date->sub(new \DateInterval('PT1H'));
+$date = $date->setTimezone(new \DateTimeZone('UTC'));
+$date = $date->setDate(2026, 2, 1);
+$date = $date->setISODate(2026, 5);
+$date = $date->setTimestamp(1767225600);

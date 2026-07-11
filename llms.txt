@@ -1,0 +1,129 @@
+# rasuvaeff/rector-datetime-immutable
+
+Rector rules migrating `DateTime` to `DateTimeImmutable` plus an auto-fixer
+for lost mutations (`$d->modify(...);` with the result thrown away).
+Namespace: `Rasuvaeff\RectorDateTimeImmutable`. Requires PHP 8.3 - 8.5,
+rector/rector ^2.5 and webmozart/assert ^1.11.
+
+## Install
+
+```bash
+composer require --dev rasuvaeff/rector-datetime-immutable
+```
+
+## Convergence wrapper
+
+```bash
+vendor/bin/rector-datetime-immutable src
+```
+
+The Composer binary first runs a dry-run mutable-boundary preflight, applies the
+packaged migration config until a clean pass, then performs a dry-run
+`MODE_REPORT` diagnostic and prints a summary line (files changed, passes,
+manual review count). Exit codes: 0 clean, 1 process failure, 2 manual review
+required, 3 pass limit reached, 64 invalid usage. It accepts `--max-passes=N`,
+`--preflight-config=FILE`, `--config=FILE`, `--report-config=FILE`,
+`--rector=FILE`, `--no-report`, `--acknowledge-boundaries` (write
+`@mutable-datetime-boundary` comments above reviewed boundary calls instead of
+migrating, then re-run the preflight; conflicts with `--dry-run`),
+`--doctrine-columns` (co-migrate attribute-mapped ORM columns),
+`--dry-run` (run the whole flow against a temporary copy, print would-be
+diffs with original paths, change nothing; out-of-path declarations are still
+read from their original files) and `--format=human|github|json` (`github`
+adds `::error`/`::warning` annotations; `json` prints one object on stdout:
+status clean|blocked|manual-review|not-converged|acknowledged, exitCode,
+passes, changedFiles, findings as {file, line, message, category} with
+category requires-datetime|feeds-mutable-property|lost-mutation|diagnostic).
+The command modifies files during migration; only the final diagnostic is
+dry-run.
+
+## Rules
+
+### MutableDateTimeBoundaryRector
+
+Dry-run preflight for typed native/vendor/inherited/interface/abstract or
+`@mutable-datetime` callables that accept `DateTime` but reject
+`DateTimeImmutable`. Supports positional, named and variadic
+function/method/static/constructor arguments. Also reports method parameters
+feeding a property the migration preserves as mutable (ORM column,
+`@mutable-datetime`, inherited) — `parameter $x feeds mutable property $y`;
+resolve by marking the method `@mutable-datetime`, co-migrating ORM columns
+with `--doctrine-columns`, or migrating the storage contract. The wrapper
+aborts before changing files when it finds one and prints a resolution hint
+per finding category. A `parameter $x requires DateTime` finding is resolved
+by rewriting the call for `DateTimeImmutable` or, once the flow is reviewed,
+by running `--acknowledge-boundaries`: it writes a
+`// @mutable-datetime-boundary: <finding>` comment above the call statement
+and every further preflight skips statements carrying that marker
+(feeds-mutable-property findings are never auto-acknowledged — silencing them
+would break the property assignment at runtime). `@mutable-datetime` on the
+calling method does not silence a requires finding, because the finding
+belongs to the called native/vendor/inherited parameter while the marker only
+preserves the calling method's own contract. File-level alternative: a custom
+preflight config (`--preflight-config`) with
+`->withSkip([MutableDateTimeBoundaryRector::class => ['<file>']])`.
+Options: `MODE` = `report` (default) | `acknowledge`;
+`DOCTRINE_COLUMNS` (bool, default false).
+
+### DateTimeImmutableRector
+
+Options (bool, pass via `withConfiguredRule`):
+- `DateTimeImmutableRector::CONSTRUCTORS` (default true) — migrate `new`, shared static factories (`createFromFormat`, `createFromInterface`, PHP 8.4+ `createFromTimestamp`) and global `date_create*()` factories.
+- `DateTimeImmutableRector::TYPEHINTS` (default true) — migrate params/returns in functions, methods, closures, arrow functions and enums, including nullable/unions.
+- `DateTimeImmutableRector::PROPERTIES` (default true) — migrate typed properties and promoted constructor params.
+- `DateTimeImmutableRector::ALLOW_SUBCLASS` (default false) — rewrite `extends \DateTime` → `extends \DateTimeImmutable` (risky).
+- `DateTimeImmutableRector::DOCTRINE_COLUMNS` (default false) — co-migrate attribute-mapped Doctrine columns: `type: 'datetime'|'date'|'time'|'datetimetz'` (string or `Types::*_MUTABLE` const) moves to the `*_immutable` DBAL variant together with the PHP type; a Column without `type` co-migrates too (Doctrine infers the mapping). Custom type strings, dynamic expressions, positional attribute args and docblock `@ORM\Column` annotations stay preserved. Needs doctrine/dbal >= 2.6.
+
+The migration also syncs the `@var`/`@param`/`@return` docblock types
+(incl. `@psalm-`/`@phpstan-` variants) of every declaration whose native type
+migrated — only the type token changes; docblock-only declarations are never
+rewritten — and removes a `use DateTime;` import once no code, docblock or
+comment reference to its alias remains in the file.
+
+Always skipped:
+
+- inherited signatures/properties;
+- interfaces/traits/abstract and anonymous classes;
+- ORM columns (unless `DOCTRINE_COLUMNS` co-migrates them);
+- declarations/classes marked `@mutable-datetime`;
+- `DateTime::createFromImmutable` (including its containing mutable return);
+- stable mutable-only callable flows;
+- unions already containing `DateTimeImmutable` (also inside DNF intersections);
+- dynamic `new $class`, intersection rewrites;
+- return types whose `return` directly yields a preserved mutable property (incl. `??`/ternary branches — the runtime value stays `DateTime`, migrating the declaration would guarantee a `TypeError`);
+- docblock types on declarations whose native type did not migrate (docblock types migrate only together with the native type of the same declaration).
+
+For a skipped property/signature, only its default, direct property-assignment RHS, or return expression is protected; unrelated construction in the same class or method still migrates.
+
+### LostDateTimeMutationRector
+
+Detects statement-level `$x->modify|add|sub|setDate|setTime|setISODate|setTimezone|setTimestamp|setMicrosecond(...)` on real `DateTimeImmutable` subtypes with the native method and an unused result.
+
+- `LostDateTimeMutationRector::MODE` = `MODE_FIX` (default): assigns results for exact built-in `DateTimeImmutable` variables established by an unconditional top-level assignment and for final subtype unions; exact sources are `new DateTimeImmutable`, the shared static factories, `date_create_immutable()`/`date_create_immutable_from_format()`, a `clone` of an exact value, and mutator results on exact locals — a plain alias `$b = $a` deliberately never counts (pre-migration both names shared one mutated object); nested conditional/loop/switch/try/match/short-circuit assignments never establish exactness, and the rule never assigns to `$this` or an open declared base type.
+- `MODE_REPORT`: adds `// @todo lost DateTimeImmutable mutation: the return value is ignored` comment (also on property-fetch/call receivers); combine with `rector --dry-run` to fail CI without changing code.
+
+Skipped: used results, mutable/interface/non-subtype receivers (including `@mixin` wrappers), visible overrides, `$this`, parameters and locals populated by open return types in fix mode, and nullsafe calls. Report mode may diagnose open real subtypes without modifying code.
+
+## Usage
+
+```php
+<?php
+
+declare(strict_types=1);
+
+use Rasuvaeff\RectorDateTimeImmutable\DateTimeImmutableRector;
+use Rasuvaeff\RectorDateTimeImmutable\LostDateTimeMutationRector;
+use Rector\Config\RectorConfig;
+
+return RectorConfig::configure()
+    ->withPaths([__DIR__ . '/src'])
+    ->withRules([DateTimeImmutableRector::class, LostDateTimeMutationRector::class]);
+```
+
+## Rules of thumb
+
+- Prefer `vendor/bin/rector-datetime-immutable <paths>`; when invoking Rector manually, run `rector process` until no changes (usually twice).
+- Defaults migrate construction, concrete signatures and properties coherently. Explicit partial options are staged migrations and can be temporarily non-executable; run static analysis/tests after each stage.
+- `@mutable-datetime` in a docblock opts a declaration out of type migration without blocking unrelated declarations in the same class.
+- An assignment followed by a mutation inside the same conditional branch may remain unchanged by design; review/report mode can surface it.
+- MODE_REPORT duplicates PHPStan level 4 reporting — prefer MODE_FIX; use report only without a static analyzer.

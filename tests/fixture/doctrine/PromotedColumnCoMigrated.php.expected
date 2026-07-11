@@ -1,0 +1,23 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity]
+class PromotedColumnCoMigrated
+{
+    public function __construct(
+        #[ORM\Column(type: 'datetime_immutable')]
+        private \DateTimeImmutable $createdAt,
+        #[ORM\Column(type: 'datetime_immutable', name: 'seen_at')]
+        private ?\DateTimeImmutable $seenAt = null,
+    ) {}
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+}

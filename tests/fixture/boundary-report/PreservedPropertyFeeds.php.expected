@@ -1,0 +1,95 @@
+<?php
+
+declare(strict_types=1);
+
+final class FeedOrmRecord
+{
+    #[\Doctrine\ORM\Mapping\Column(type: 'datetime')]
+    private \DateTime $syncedAt;
+
+    private \DateTime $modern;
+
+    public function __construct()
+    {
+        $this->syncedAt = new \DateTime('2026-01-01');
+        $this->modern = new \DateTime('2026-01-01');
+    }
+
+    public function setSyncedAt(\DateTime $syncedAt): void
+    {
+        // @todo mutable DateTime boundary: parameter $syncedAt feeds mutable property $syncedAt
+        $this->syncedAt = $syncedAt;
+    }
+
+    public function resync(?\DateTime $when): void
+    {
+        // @todo mutable DateTime boundary: parameter $when feeds mutable property $syncedAt
+        $this->syncedAt = $when ?? new \DateTime('2026-01-02');
+    }
+
+    public function setModern(\DateTime $modern): void
+    {
+        $this->modern = $modern;
+    }
+
+    /** @mutable-datetime */
+    public function adopt(\DateTime $legacy): void
+    {
+        $this->syncedAt = $legacy;
+    }
+}
+
+final class FeedMarkedRecord
+{
+    /** @mutable-datetime */
+    private \DateTime $frozen;
+
+    public function __construct(\DateTime $seed)
+    {
+        // @todo mutable DateTime boundary: parameter $seed feeds mutable property $frozen
+        $this->frozen = $seed;
+    }
+}
+
+final class FeedPromotedRecord
+{
+    public function __construct(
+        #[\Doctrine\ORM\Mapping\Column(type: 'datetime')]
+        private \DateTime $storedAt,
+    ) {
+    }
+
+    public function overwrite(\DateTime $storedAt): void
+    {
+        // @todo mutable DateTime boundary: parameter $storedAt feeds mutable property $storedAt
+        $this->storedAt = $storedAt;
+    }
+}
+
+abstract class FeedBase
+{
+    protected \DateTime $inherited;
+}
+
+final class FeedInheritedRecord extends FeedBase
+{
+    protected \DateTime $inherited;
+
+    public function setInherited(\DateTime $inherited): void
+    {
+        // @todo mutable DateTime boundary: parameter $inherited feeds mutable property $inherited
+        $this->inherited = $inherited;
+    }
+}
+
+final class FeedStaticRecord
+{
+    /** @mutable-datetime */
+    private static \DateTime $shared;
+
+    public static function share(\DateTime $value): void
+    {
+        // @todo mutable DateTime boundary: parameter $value feeds mutable property $shared
+        self::$shared = $value;
+    }
+}

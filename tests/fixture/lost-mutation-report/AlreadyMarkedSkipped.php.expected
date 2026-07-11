@@ -1,0 +1,7 @@
+<?php
+
+declare(strict_types=1);
+
+$date = new \DateTimeImmutable('2026-01-01');
+// @todo lost DateTimeImmutable mutation: the return value is ignored
+$date->modify('+1 day');

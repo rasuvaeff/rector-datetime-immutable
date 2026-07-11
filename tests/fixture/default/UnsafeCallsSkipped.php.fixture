@@ -1,0 +1,8 @@
+<?php
+
+declare(strict_types=1);
+
+$class = 'DateTime';
+$dynamic = new $class();
+$mutableFromImmutable = \DateTime::createFromImmutable(new \DateTimeImmutable());
+$errors = \DateTime::getLastErrors();

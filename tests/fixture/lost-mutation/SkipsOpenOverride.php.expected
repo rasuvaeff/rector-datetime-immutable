@@ -1,0 +1,20 @@
+<?php
+
+declare(strict_types=1);
+
+class MutableOverride extends \DateTimeImmutable
+{
+    private int $mutations = 0;
+
+    public function modify(string $modifier): static
+    {
+        ++$this->mutations;
+
+        return new static(parent::modify($modifier)->format('c'));
+    }
+}
+
+function advanceOpen(\DateTimeImmutable $date): void
+{
+    $date->modify('+1 day');
+}

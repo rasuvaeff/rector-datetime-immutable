@@ -1,0 +1,18 @@
+<?php
+
+declare(strict_types=1);
+
+$base = new \DateTimeImmutable('2026-01-01');
+$next = $base->modify('+1 day');
+$formatted = $base->modify('+2 days')->format('Y-m-d');
+
+if ($base->modify('+3 days') > $base) {
+    echo 'later';
+}
+
+echo $base->format('Y-m-d');
+
+function bump(\DateTimeImmutable $moment): \DateTimeImmutable
+{
+    return $moment->add(new \DateInterval('P1D'));
+}

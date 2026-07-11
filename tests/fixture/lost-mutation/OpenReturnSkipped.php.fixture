@@ -1,0 +1,280 @@
+<?php
+
+declare(strict_types=1);
+
+final class MutableLocalOverride extends \DateTimeImmutable
+{
+    private int $mutations = 0;
+
+    public function modify(string $modifier): static
+    {
+        ++$this->mutations;
+
+        return new static(parent::modify($modifier)->format('c'));
+    }
+
+    public function mutations(): int
+    {
+        return $this->mutations;
+    }
+}
+
+function createOpenDate(): \DateTimeImmutable
+{
+    return new MutableLocalOverride('2026-01-01');
+}
+
+$date = createOpenDate();
+$original = $date;
+$date->modify('+1 day');
+
+if ($date !== $original || !$date instanceof MutableLocalOverride || $date->mutations() !== 1) {
+    throw new \RuntimeException('Open return value was reassigned');
+}
+
+$reassigned = new \DateTimeImmutable('2026-01-01');
+$reassigned = createOpenDate();
+$reassigned->modify('+1 day');
+
+if (!$reassigned instanceof MutableLocalOverride || $reassigned->mutations() !== 1) {
+    throw new \RuntimeException('Reassignment did not invalidate exactness');
+}
+
+$byReference = new \DateTimeImmutable('2026-01-01');
+$alias =& $byReference;
+$alias = createOpenDate();
+$byReference->modify('+1 day');
+
+if (!$byReference instanceof MutableLocalOverride || $byReference->mutations() !== 1) {
+    throw new \RuntimeException('Reference did not invalidate exactness');
+}
+
+$iterated = new \DateTimeImmutable('2026-01-01');
+
+foreach ([createOpenDate()] as $iterated) {
+}
+
+$iterated->modify('+1 day');
+
+if (!$iterated instanceof MutableLocalOverride || $iterated->mutations() !== 1) {
+    throw new \RuntimeException('Foreach did not invalidate exactness');
+}
+
+$exact = new \DateTimeImmutable('2026-01-01');
+$exact->modify('+1 day');
+
+if ($exact->format('Y-m-d') !== '2026-01-02') {
+    throw new \RuntimeException('Exact construction was not fixed');
+}
+
+$fromFactory = \DateTimeImmutable::createFromFormat('Y-m-d', '2026-01-01');
+
+if (!$fromFactory instanceof \DateTimeImmutable) {
+    throw new \RuntimeException('Factory failed');
+}
+
+$fromFactory->modify('+1 day');
+
+if ($fromFactory->format('Y-m-d') !== '2026-01-02') {
+    throw new \RuntimeException('Exact factory was not fixed');
+}
+
+$firstClosure = static function (): \DateTimeImmutable {
+    $value = new \DateTimeImmutable('2026-01-01');
+    $value->modify('+1 day');
+
+    return $value;
+};
+
+if ($firstClosure()->format('Y-m-d') !== '2026-01-02') {
+    throw new \RuntimeException('Exact closure local was not fixed');
+}
+
+$secondClosure = static function (\DateTimeImmutable $value): \DateTimeImmutable {
+    $value->modify('+1 day');
+
+    return $value;
+};
+
+$open = createOpenDate();
+$returned = $secondClosure($open);
+
+if ($returned !== $open || !$returned instanceof MutableLocalOverride || $returned->mutations() !== 1) {
+    throw new \RuntimeException('Closure scopes leaked exactness');
+}
+
+function verifyOpenThenConditionalExact(bool $condition): void
+{
+    $value = createOpenDate();
+
+    if ($condition) {
+        $value = new \DateTimeImmutable('2026-01-01');
+    }
+
+    $original = $value;
+    $value->modify('+1 day');
+
+    if ($condition) {
+        if ($value !== $original || $value->format('Y-m-d') !== '2026-01-01') {
+            throw new \RuntimeException('Conditional exact assignment promoted an open local');
+        }
+
+        return;
+    }
+
+    if ($value !== $original || !$value instanceof MutableLocalOverride || $value->mutations() !== 1) {
+        throw new \RuntimeException('Skipped conditional exact assignment rewrote an open local');
+    }
+}
+
+verifyOpenThenConditionalExact(false);
+verifyOpenThenConditionalExact(true);
+
+function verifyExactThenConditionalOpen(bool $condition): void
+{
+    $value = new \DateTimeImmutable('2026-01-01');
+
+    if ($condition) {
+        $value = createOpenDate();
+    }
+
+    $original = $value;
+    $value->modify('+1 day');
+
+    if ($condition) {
+        if ($value !== $original || !$value instanceof MutableLocalOverride || $value->mutations() !== 1) {
+            throw new \RuntimeException('Conditional open assignment kept stale exactness');
+        }
+
+        return;
+    }
+
+    if ($value !== $original || $value->format('Y-m-d') !== '2026-01-01') {
+        throw new \RuntimeException('Potential conditional reassignment was not handled conservatively');
+    }
+}
+
+verifyExactThenConditionalOpen(false);
+verifyExactThenConditionalOpen(true);
+
+function verifyBranchLocalAssignment(bool $condition): void
+{
+    $value = createOpenDate();
+
+    if ($condition) {
+        $value = new \DateTimeImmutable('2026-01-01');
+        $original = $value;
+        $value->modify('+1 day');
+
+        if ($value !== $original || $value->format('Y-m-d') !== '2026-01-01') {
+            throw new \RuntimeException('Nested branch assignment promoted exactness');
+        }
+    }
+}
+
+verifyBranchLocalAssignment(false);
+verifyBranchLocalAssignment(true);
+
+function verifyShortCircuitAssignment(bool $condition): void
+{
+    $value = createOpenDate();
+    $condition && ($value = new \DateTimeImmutable('2026-01-01'));
+    $original = $value;
+    $value->modify('+1 day');
+
+    if ($condition) {
+        if ($value !== $original || $value->format('Y-m-d') !== '2026-01-01') {
+            throw new \RuntimeException('Short-circuit assignment promoted exactness');
+        }
+
+        return;
+    }
+
+    if ($value !== $original || !$value instanceof MutableLocalOverride || $value->mutations() !== 1) {
+        throw new \RuntimeException('Short-circuit assignment rewrote an open local');
+    }
+}
+
+verifyShortCircuitAssignment(false);
+verifyShortCircuitAssignment(true);
+
+function verifyOtherNestedContexts(): void
+{
+    $loop = createOpenDate();
+
+    for ($run = true; $run; $run = false) {
+        $loop = new \DateTimeImmutable('2026-01-01');
+    }
+
+    $loop->modify('+1 day');
+
+    if ($loop->format('Y-m-d') !== '2026-01-01') {
+        throw new \RuntimeException('Loop assignment promoted exactness');
+    }
+
+    $switched = createOpenDate();
+
+    switch (1) {
+        case 1:
+            $switched = new \DateTimeImmutable('2026-01-01');
+            break;
+    }
+
+    $switched->modify('+1 day');
+
+    if ($switched->format('Y-m-d') !== '2026-01-01') {
+        throw new \RuntimeException('Switch assignment promoted exactness');
+    }
+
+    $tried = createOpenDate();
+
+    try {
+        $tried = new \DateTimeImmutable('2026-01-01');
+    } catch (\Throwable) {
+    }
+
+    $tried->modify('+1 day');
+
+    if ($tried->format('Y-m-d') !== '2026-01-01') {
+        throw new \RuntimeException('Try assignment promoted exactness');
+    }
+
+    $matched = createOpenDate();
+    match (1) {
+        1 => $matched = new \DateTimeImmutable('2026-01-01'),
+    };
+    $matched->modify('+1 day');
+
+    if ($matched->format('Y-m-d') !== '2026-01-01') {
+        throw new \RuntimeException('Match assignment promoted exactness');
+    }
+}
+
+verifyOtherNestedContexts();
+
+$nestedClosure = static function (): array {
+    $value = createOpenDate();
+
+    $inner = static function (): \DateTimeImmutable {
+        $value = new \DateTimeImmutable('2026-01-01');
+        $value->modify('+1 day');
+
+        return $value;
+    };
+
+    $innerValue = $inner();
+    $original = $value;
+    $value->modify('+1 day');
+
+    if ($value !== $original || !$value instanceof MutableLocalOverride || $value->mutations() !== 1) {
+        throw new \RuntimeException('Nested closure leaked exactness to its parent');
+    }
+
+    return [$innerValue, $value];
+};
+
+[$innerValue] = $nestedClosure();
+
+if ($innerValue->format('Y-m-d') !== '2026-01-02') {
+    throw new \RuntimeException('Nested closure exact local was not fixed');
+}

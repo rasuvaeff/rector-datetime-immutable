@@ -1,0 +1,20 @@
+<?php
+
+declare(strict_types=1);
+
+function now(): \DateTime
+{
+    return new \DateTime('2026-01-01');
+}
+
+final class Event
+{
+    public function __construct(
+        public \DateTime $at,
+    ) {
+    }
+}
+
+$event = new Event(now());
+
+echo $event->at::class;

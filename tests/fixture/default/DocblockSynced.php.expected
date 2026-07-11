@@ -1,0 +1,33 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Docs;
+
+use Doctrine\ORM\Mapping as ORM;
+
+final class DocblockSynced
+{
+    /** @var \DateTimeImmutable|null the last run marker */
+    private ?\DateTimeImmutable $lastRun = null;
+
+    /** @var \DateTime kept by the ORM */
+    #[ORM\Column(type: 'datetime')]
+    private \DateTime $storedAt;
+
+    /** @var \DateTime docblock-only declaration stays */
+    private $legacy;
+
+    /**
+     * @param \DateTimeImmutable $from lower bound
+     * @param string $label
+     *
+     * @return \DateTimeImmutable
+     */
+    public function window(\DateTimeImmutable $from, string $label): \DateTimeImmutable
+    {
+        $this->lastRun = new \DateTimeImmutable('now');
+
+        return $from;
+    }
+}

@@ -1,0 +1,23 @@
+<?php
+
+declare(strict_types=1);
+
+final class Order
+{
+    #[\Doctrine\ORM\Mapping\Column(type: 'datetime')]
+    private \DateTime $placedAt;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private \DateTime $paidAt;
+
+    private \DateTimeImmutable $draftedAt;
+
+    public function __construct(
+        #[\Doctrine\ORM\Mapping\Column(type: 'datetime')]
+        private \DateTime $shippedAt,
+        private \DateTimeImmutable $refundedAt,
+    ) {
+    }
+}

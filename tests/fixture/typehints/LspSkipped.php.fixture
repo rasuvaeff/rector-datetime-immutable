@@ -1,0 +1,40 @@
+<?php
+
+declare(strict_types=1);
+
+interface Clock
+{
+    public function now(): \DateTime;
+}
+
+final class SystemClock implements Clock
+{
+    public function now(): \DateTime
+    {
+        return $this->today();
+    }
+
+    public function today(): \DateTime
+    {
+        return new \DateTime();
+    }
+}
+
+abstract class BaseClock
+{
+    public function tick(\DateTime $moment): void
+    {
+    }
+}
+
+final class WallClock extends BaseClock
+{
+    public function tick(\DateTime $moment): void
+    {
+    }
+
+    public function local(\DateTime $moment): \DateTime
+    {
+        return $moment;
+    }
+}

@@ -1,0 +1,10 @@
+<?php
+
+declare(strict_types=1);
+
+class PinnedDate extends \DateTimeImmutable
+{
+}
+
+$pinned = new PinnedDate('2026-01-01');
+$plain = new \DateTimeImmutable('2026-01-01');

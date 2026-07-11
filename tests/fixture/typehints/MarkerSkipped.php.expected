@@ -1,0 +1,34 @@
+<?php
+
+declare(strict_types=1);
+
+final class LegacyBridge
+{
+    /**
+     * @mutable-datetime
+     */
+    private \DateTime $raw;
+
+    private \DateTimeImmutable $converted;
+
+    /**
+     * @mutable-datetime
+     */
+    public function touch(\DateTime $when): \DateTime
+    {
+        return $when;
+    }
+
+    public function convert(\DateTimeImmutable $when): \DateTimeImmutable
+    {
+        return $when;
+    }
+}
+
+/**
+ * @mutable-datetime
+ */
+function legacyNow(\DateTime $seed): \DateTime
+{
+    return $seed;
+}

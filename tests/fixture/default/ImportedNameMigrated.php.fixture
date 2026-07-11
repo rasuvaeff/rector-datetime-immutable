@@ -1,0 +1,10 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App;
+
+use DateTime;
+
+$imported = new DateTime('tomorrow');
+$viaImport = DateTime::createFromFormat('Y-m-d', '2026-01-01');

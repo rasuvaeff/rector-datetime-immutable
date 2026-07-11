@@ -1,0 +1,67 @@
+<?php
+
+declare(strict_types=1);
+
+final class MarkedClock
+{
+    /** @mutable-datetime */
+    private \DateTime $date;
+
+    public function __construct()
+    {
+        $this->date = new \DateTime('2026-01-01');
+    }
+
+    public function format(): string
+    {
+        return $this->date->format('Y-m-d');
+    }
+}
+
+$clock = new MarkedClock();
+
+if ($clock->format() !== '2026-01-01') {
+    throw new \RuntimeException('Marked property construction changed');
+}
+
+$anonymous = new class {
+    private \DateTime $date;
+
+    public function __construct()
+    {
+        $this->date = new \DateTime('2026-02-01');
+    }
+
+    public function format(): string
+    {
+        return $this->date->format('Y-m-d');
+    }
+};
+
+if ($anonymous->format() !== '2026-02-01') {
+    throw new \RuntimeException('Anonymous class construction changed');
+}
+
+trait DateConverterContract
+{
+    abstract public function convert(\DateTime $date): \DateTime;
+}
+
+final class DateConverter
+{
+    use DateConverterContract;
+
+    public function convert(\DateTime $date): \DateTime
+    {
+        return $date;
+    }
+}
+
+function mutableCopy(\DateTimeImmutable $date): \DateTime
+{
+    return \DateTime::createFromImmutable($date);
+}
+
+if (!mutableCopy(new \DateTimeImmutable('2026-03-01')) instanceof \DateTime) {
+    throw new \RuntimeException('Mutable factory return contract changed');
+}

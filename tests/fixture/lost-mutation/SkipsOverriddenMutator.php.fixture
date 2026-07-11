@@ -1,0 +1,15 @@
+<?php
+
+declare(strict_types=1);
+
+final class PinnedDate extends \DateTimeImmutable
+{
+    public function modify(string $modifier): static
+    {
+        return $this;
+    }
+}
+
+$pinned = new PinnedDate('2026-01-01');
+$pinned->modify('+1 day');
+$pinned->setTime(0, 0);

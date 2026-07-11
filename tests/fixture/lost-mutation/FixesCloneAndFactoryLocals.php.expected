@@ -1,0 +1,99 @@
+<?php
+
+declare(strict_types=1);
+
+final class OpenCloneSource extends \DateTimeImmutable
+{
+    private int $mutations = 0;
+
+    public function modify(string $modifier): static
+    {
+        ++$this->mutations;
+
+        return new static(parent::modify($modifier)->format('c'));
+    }
+
+    public function mutations(): int
+    {
+        return $this->mutations;
+    }
+}
+
+function openCloneSource(): \DateTimeImmutable
+{
+    return new OpenCloneSource('2026-01-01');
+}
+
+$start = new \DateTimeImmutable('2026-01-01');
+$end = clone $start;
+$end = $end->modify('+1 month');
+
+if ($start->format('Y-m-d') !== '2026-01-01' || $end->format('Y-m-d') !== '2026-02-01') {
+    throw new \RuntimeException('Clone of an exact local was not fixed independently');
+}
+
+$chained = clone (new \DateTimeImmutable('2026-03-01'));
+$chained = $chained->modify('+1 day');
+
+if ($chained->format('Y-m-d') !== '2026-03-02') {
+    throw new \RuntimeException('Clone of an exact construction was not fixed');
+}
+
+$openCopy = clone openCloneSource();
+$openCopy->modify('+1 day');
+
+if (!$openCopy instanceof OpenCloneSource || $openCopy->mutations() !== 1) {
+    throw new \RuntimeException('Clone of an open value was rewritten');
+}
+
+$open = openCloneSource();
+$openVariableCopy = clone $open;
+$openVariableCopy->modify('+1 day');
+
+if (!$openVariableCopy instanceof OpenCloneSource || $openVariableCopy->mutations() !== 1) {
+    throw new \RuntimeException('Clone of an open variable was rewritten');
+}
+
+$aliasSource = new \DateTimeImmutable('2026-04-01');
+$alias = $aliasSource;
+$alias->modify('+1 day');
+
+if ($alias !== $aliasSource || $alias->format('Y-m-d') !== '2026-04-01') {
+    throw new \RuntimeException('Alias of an exact local must stay reported, not auto-fixed');
+}
+
+$next = date_create_immutable('2026-05-01');
+
+if ($next === false) {
+    throw new \RuntimeException('date_create_immutable failed');
+}
+
+$next = $next->add(new \DateInterval('P1M'));
+
+if ($next->format('Y-m-d') !== '2026-06-01') {
+    throw new \RuntimeException('Procedural immutable factory local was not fixed');
+}
+
+$fromFormat = date_create_immutable_from_format('Y-m-d', '2026-07-01');
+
+if ($fromFormat === false) {
+    throw new \RuntimeException('date_create_immutable_from_format failed');
+}
+
+$fromFormat = $fromFormat->setTime(12, 30);
+
+if ($fromFormat->format('Y-m-d H:i') !== '2026-07-01 12:30') {
+    throw new \RuntimeException('Procedural from-format factory local was not fixed');
+}
+
+$mutable = date_create('2026-08-01');
+
+if ($mutable === false) {
+    throw new \RuntimeException('date_create failed');
+}
+
+$mutable->modify('+1 day');
+
+if ($mutable->format('Y-m-d') !== '2026-08-02') {
+    throw new \RuntimeException('Mutable receiver must keep in-place mutation');
+}

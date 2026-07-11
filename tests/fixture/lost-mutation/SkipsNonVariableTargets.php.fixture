@@ -1,0 +1,20 @@
+<?php
+
+declare(strict_types=1);
+
+final class Booking
+{
+    public \DateTimeImmutable $startsAt;
+
+    public function delay(): void
+    {
+        $this->startsAt->modify('+1 hour');
+    }
+}
+
+function nextWeek(): \DateTimeImmutable
+{
+    return new \DateTimeImmutable('+7 days');
+}
+
+nextWeek()->modify('+1 day');

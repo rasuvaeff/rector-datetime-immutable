@@ -1,0 +1,18 @@
+<?php
+
+declare(strict_types=1);
+
+function schedule(\DateTime $when): \DateTime
+{
+    return $when;
+}
+
+final class Meeting
+{
+    private ?\DateTime $startsAt = null;
+
+    public function start(\DateTime $at): void
+    {
+        $this->startsAt = $at;
+    }
+}

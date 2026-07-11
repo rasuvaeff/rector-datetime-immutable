@@ -1,0 +1,11 @@
+<?php
+
+declare(strict_types=1);
+
+$plain = new \DateTime();
+$withArgs = new \DateTime('now', new \DateTimeZone('UTC'));
+$fromFormat = \DateTime::createFromFormat('Y-m-d', '2026-01-01');
+$fromInterface = \DateTime::createFromInterface($plain);
+$fromTimestamp = \DateTime::createFromTimestamp(0);
+$procedural = date_create('yesterday');
+$proceduralFormat = date_create_from_format('Y-m-d', '2026-01-01');

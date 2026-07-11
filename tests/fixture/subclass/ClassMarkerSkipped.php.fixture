@@ -1,0 +1,14 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * @mutable-datetime
+ */
+class MarkedDate extends \DateTime
+{
+    public function keep(\DateTime $date): \DateTime
+    {
+        return $date;
+    }
+}

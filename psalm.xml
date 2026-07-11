@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<psalm
+    errorLevel="1"
+    findUnusedCode="false"
+    resolveFromConfigFile="true"
+>
+    <projectFiles>
+        <directory name="src"/>
+        <ignoreFiles>
+            <directory name="vendor"/>
+        </ignoreFiles>
+    </projectFiles>
+    <issueHandlers>
+        <!-- AbstractRector's own collaborators (nodeNameResolver, nodeFactory, …)
+             are setter-injected by Rector's DI container after construction —
+             a design of the parent class we extend, not of this package. -->
+        <PropertyNotSetInConstructor>
+            <errorLevel type="suppress">
+                <referencedProperty name="Rector\Rector\AbstractRector::$nodeNameResolver"/>
+                <referencedProperty name="Rector\Rector\AbstractRector::$nodeTypeResolver"/>
+                <referencedProperty name="Rector\Rector\AbstractRector::$nodeFactory"/>
+                <referencedProperty name="Rector\Rector\AbstractRector::$nodeComparator"/>
+                <referencedProperty name="Rector\Rector\AbstractRector::$file"/>
+                <referencedProperty name="Rector\Rector\AbstractRector::$skipper"/>
+            </errorLevel>
+        </PropertyNotSetInConstructor>
+    </issueHandlers>
+</psalm>

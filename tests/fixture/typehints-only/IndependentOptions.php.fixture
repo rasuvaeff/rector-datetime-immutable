@@ -1,0 +1,15 @@
+<?php
+
+declare(strict_types=1);
+
+final class TypeOnly
+{
+    private \DateTime $stored;
+
+    public function pass(\DateTime $date): \DateTime
+    {
+        return $date;
+    }
+}
+
+$closure = static fn(\DateTime $date): \DateTime => $date;

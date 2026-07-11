@@ -1,0 +1,23 @@
+<?php
+
+declare(strict_types=1);
+
+abstract class BaseJob
+{
+    protected \DateTime $queuedAt;
+
+    public function runAt(\DateTime $when): void
+    {
+    }
+}
+
+final class Reporter
+{
+    public function pick(\DateTime|\DateTimeImmutable $either): void
+    {
+    }
+
+    public function chart(\DateTimeImmutable|string $range): void
+    {
+    }
+}

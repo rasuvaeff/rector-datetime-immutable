@@ -1,0 +1,17 @@
+<?php
+
+declare(strict_types=1);
+
+class AcknowledgeHolder
+{
+    /** @mutable-datetime */
+    private \DateTime $kept;
+
+    public function setKept(\DateTime $kept): void
+    {
+        $this->kept = $kept;
+    }
+}
+
+$date = new \DateTime('2026-01-01');
+date_modify($date, '+1 day');

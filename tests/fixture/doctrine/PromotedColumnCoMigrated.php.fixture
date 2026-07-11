@@ -1,0 +1,24 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Entity;
+
+use DateTime;
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity]
+class PromotedColumnCoMigrated
+{
+    public function __construct(
+        #[ORM\Column(type: 'datetime')]
+        private DateTime $createdAt,
+        #[ORM\Column(type: 'datetime', name: 'seen_at')]
+        private ?DateTime $seenAt = null,
+    ) {}
+
+    public function getCreatedAt(): DateTime
+    {
+        return $this->createdAt;
+    }
+}

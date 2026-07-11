@@ -1,0 +1,11 @@
+<?php
+
+declare(strict_types=1);
+
+$legacy = new \DateTime('2026-01-01');
+$legacy->modify('+1 day');
+
+function mutateUnknown(\DateTimeInterface $moment): void
+{
+    $moment->modify('+1 day');
+}

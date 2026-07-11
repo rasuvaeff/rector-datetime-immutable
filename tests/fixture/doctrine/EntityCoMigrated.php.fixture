@@ -1,0 +1,54 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Entity;
+
+use DateTime;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity]
+class EntityCoMigrated
+{
+    #[ORM\Column(type: 'datetime')]
+    private DateTime $expiresAt;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?DateTime $startedAt = null;
+
+    #[ORM\Column(type: 'date')]
+    private DateTime $bornOn;
+
+    #[ORM\Column(nullable: true)]
+    private ?DateTime $inferred = null;
+
+    #[ORM\Column(type: 'datetime_custom')]
+    private DateTime $custom;
+
+    /** @ORM\Column(type="datetime") */
+    private DateTime $annotated;
+
+    public function __construct(DateTime $expiresAt, DateTime $bornOn)
+    {
+        $this->expiresAt = $expiresAt;
+        $this->bornOn = $bornOn;
+        $this->custom = new DateTime('now');
+        $this->annotated = new DateTime('now');
+    }
+
+    public function getExpiresAt(): DateTime
+    {
+        return $this->expiresAt;
+    }
+
+    public function setExpiresAt(DateTime $expiresAt): void
+    {
+        $this->expiresAt = $expiresAt;
+    }
+
+    public function getCustom(): DateTime
+    {
+        return $this->custom;
+    }
+}

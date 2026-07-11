@@ -1,0 +1,19 @@
+<?php
+
+declare(strict_types=1);
+
+$closure = static function (\DateTimeImmutable $date): \DateTimeImmutable {
+    return $date;
+};
+
+$arrow = static fn(\DateTimeImmutable $date): \DateTimeImmutable => $date;
+
+enum ClockState
+{
+    case Ready;
+
+    public function at(\DateTimeImmutable $date): \DateTimeImmutable
+    {
+        return $date;
+    }
+}

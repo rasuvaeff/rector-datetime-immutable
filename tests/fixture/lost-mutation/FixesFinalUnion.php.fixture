@@ -1,0 +1,16 @@
+<?php
+
+declare(strict_types=1);
+
+final class FirstDate extends \DateTimeImmutable
+{
+}
+
+final class SecondDate extends \DateTimeImmutable
+{
+}
+
+function advanceFinal(FirstDate|SecondDate $date): void
+{
+    $date->modify('+1 day');
+}

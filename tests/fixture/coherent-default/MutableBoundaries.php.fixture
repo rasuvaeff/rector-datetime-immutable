@@ -1,0 +1,93 @@
+<?php
+
+declare(strict_types=1);
+
+$direct = date_modify(new \DateTime('2026-01-01'), '+1 day');
+
+$variable = new \DateTime('2026-02-01');
+date_add($variable, new \DateInterval('P1D'));
+
+$aliasSource = new \DateTime('2026-03-02');
+$alias = $aliasSource;
+date_sub($alias, new \DateInterval('P1D'));
+
+$dateSet = new \DateTime('2026-01-01');
+date_date_set($dateSet, 2026, 7, 14);
+
+$isoSet = new \DateTime('2026-01-01');
+date_isodate_set($isoSet, 2026, 29);
+
+$timeSet = new \DateTime('2026-01-01');
+date_time_set($timeSet, 12, 30);
+
+$timestampSet = new \DateTime('2026-01-01');
+date_timestamp_set($timestampSet, 1_768_435_200);
+
+$timezoneSet = new \DateTime('2026-01-01');
+date_timezone_set($timezoneSet, new \DateTimeZone('Europe/Moscow'));
+
+final class BoundaryHolder
+{
+    private \DateTime $date;
+
+    public function __construct()
+    {
+        $this->date = new \DateTime('2026-04-01');
+    }
+
+    public function move(): \DateTime
+    {
+        date_modify($this->date, '+1 day');
+
+        return $this->date;
+    }
+}
+
+interface MutableDateConsumer
+{
+    public function accept(\DateTime $date): void;
+}
+
+final class ConcreteMutableDateConsumer implements MutableDateConsumer
+{
+    public function accept(\DateTime $date): void
+    {
+        date_modify($date, '+1 day');
+    }
+}
+
+$interfaceDate = new \DateTime('2026-05-01');
+(new ConcreteMutableDateConsumer())->accept($interfaceDate);
+
+function localRoundTrip(\DateTime $date): \DateTime
+{
+    return $date;
+}
+
+$local = localRoundTrip(new \DateTime('2026-06-01'));
+
+/** @mutable-datetime */
+function markedMutableCall(\DateTime $date): void
+{
+    date_modify($date, '+1 day');
+}
+
+$marked = new \DateTime('2026-07-01');
+markedMutableCall($marked);
+
+if (
+    $direct->format('Y-m-d') !== '2026-01-02'
+    || $variable->format('Y-m-d') !== '2026-02-02'
+    || $aliasSource->format('Y-m-d') !== '2026-03-01'
+    || $dateSet::class !== \DateTime::class
+    || $isoSet::class !== \DateTime::class
+    || $timeSet::class !== \DateTime::class
+    || $timestampSet::class !== \DateTime::class
+    || $timezoneSet::class !== \DateTime::class
+    || (new BoundaryHolder())->move()->format('Y-m-d') !== '2026-04-02'
+    || $interfaceDate->format('Y-m-d') !== '2026-05-02'
+    || !$local instanceof \DateTimeImmutable
+    || $marked::class !== \DateTime::class
+) {
+    throw new \RuntimeException('Mutable boundary migration was not coherent');
+}

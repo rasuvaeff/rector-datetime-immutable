@@ -1,0 +1,18 @@
+<?php
+
+declare(strict_types=1);
+
+function schedule(\DateTimeImmutable $when): \DateTimeImmutable
+{
+    return $when;
+}
+
+final class Meeting
+{
+    private ?\DateTimeImmutable $startsAt = null;
+
+    public function start(\DateTimeImmutable $at): void
+    {
+        $this->startsAt = $at;
+    }
+}

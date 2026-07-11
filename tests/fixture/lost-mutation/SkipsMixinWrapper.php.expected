@@ -1,0 +1,22 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * @mixin \DateTimeImmutable
+ */
+final class DateWrapper
+{
+    public function __construct(
+        private \DateTimeImmutable $inner,
+    ) {
+    }
+
+    public function __call(string $name, array $arguments): mixed
+    {
+        return $this->inner->{$name}(...$arguments);
+    }
+}
+
+$wrapper = new DateWrapper(new \DateTimeImmutable('2026-01-01'));
+$wrapper->modify('+1 day');

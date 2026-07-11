@@ -1,0 +1,16 @@
+<?php
+
+declare(strict_types=1);
+
+$date = new \DateTimeImmutable('2026-01-01');
+$date->modify('+1 day');
+
+final class Booking
+{
+    public \DateTimeImmutable $startsAt;
+
+    public function delay(): void
+    {
+        $this->startsAt->modify('+1 hour');
+    }
+}

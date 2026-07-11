@@ -1,0 +1,20 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Cleanup;
+
+use DateTime as LegacyDateTime;
+
+final class AliasedImportKept
+{
+    /**
+     * @mutable-datetime third-party SDK mutates this in place
+     */
+    private LegacyDateTime $sdkClock;
+
+    public function __construct()
+    {
+        $this->sdkClock = new LegacyDateTime('now');
+    }
+}

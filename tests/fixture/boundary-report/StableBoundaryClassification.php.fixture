@@ -1,0 +1,54 @@
+<?php
+
+declare(strict_types=1);
+
+abstract class AbstractScheduler
+{
+    abstract public function schedule(\DateTime $at): void;
+
+    abstract public function reschedule(?\DateTime $at): void;
+
+    abstract public function scheduleEither(\DateTime|\DateTimeImmutable $at): void;
+
+    public function scheduleConcrete(\DateTime $at): void
+    {
+    }
+}
+
+final class ConcreteScheduler extends AbstractScheduler
+{
+    public function schedule(\DateTime $at): void
+    {
+    }
+
+    public function reschedule(?\DateTime $at): void
+    {
+    }
+
+    public function scheduleEither(\DateTime|\DateTimeImmutable $at): void
+    {
+    }
+
+    public function scheduleConcrete(\DateTime $at): void
+    {
+    }
+
+    public function scheduleLocalOnly(\DateTime $at): void
+    {
+    }
+}
+
+$scheduler = new ConcreteScheduler();
+$scheduler->schedule(new \DateTime('2026-01-01'));
+$scheduler->reschedule(new \DateTime('2026-01-02'));
+$scheduler->scheduleEither(new \DateTime('2026-01-03'));
+$scheduler->scheduleConcrete(new \DateTime('2026-01-04'));
+$scheduler->scheduleLocalOnly(new \DateTime('2026-01-05'));
+
+$modifier = date_modify(...);
+
+$unpacked = [new \DateTime('2026-02-01'), '+1 day'];
+date_modify(...$unpacked);
+
+$immutableArgument = new \DateTimeImmutable('2026-03-01');
+date_modify($immutableArgument, '+1 day');

@@ -1,0 +1,18 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Cleanup;
+
+use DateTime;
+
+final class DocblockImportKept
+{
+    /** @var DateTime|null loaded lazily by the legacy container */
+    private $legacyClock;
+
+    public function reset(): void
+    {
+        $this->legacyClock = null;
+    }
+}

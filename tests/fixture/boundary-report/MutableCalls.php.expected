@@ -1,0 +1,74 @@
+<?php
+
+declare(strict_types=1);
+
+$date = new \DateTime('2026-01-01');
+// @todo mutable DateTime boundary: parameter $object requires DateTime
+date_modify($date, '+1 day');
+
+// @todo mutable DateTime boundary: parameter $object requires DateTime
+$direct = date_add(new \DateTime('2026-02-01'), new \DateInterval('P1D'));
+
+function localAcceptsDate(\DateTime $date): void
+{
+}
+
+localAcceptsDate(new \DateTime('2026-03-01'));
+
+// @todo mutable DateTime boundary: parameter $object requires DateTime
+date_modify(modifier: '+1 day', object: $date);
+
+interface StableMutableApi
+{
+    public function accept(\DateTime $date): void;
+
+    public function acceptMany(\DateTime ...$dates): void;
+
+    public static function acceptStatic(\DateTime $date): void;
+}
+
+final class MutableApi implements StableMutableApi
+{
+    public function accept(\DateTime $date): void
+    {
+    }
+
+    public function acceptMany(\DateTime ...$dates): void
+    {
+    }
+
+    public static function acceptStatic(\DateTime $date): void
+    {
+    }
+}
+
+$api = new MutableApi();
+// @todo mutable DateTime boundary: parameter $date requires DateTime
+$api->accept(new \DateTime('2026-04-01'));
+// @todo mutable DateTime boundary: parameter $dates requires DateTime
+$api->acceptMany(new \DateTime('2026-05-01'), new \DateTime('2026-06-01'));
+// @todo mutable DateTime boundary: parameter $date requires DateTime
+MutableApi::acceptStatic(new \DateTime('2026-07-01'));
+
+interface StableMutableFactory
+{
+    public function __construct(\DateTime $date);
+}
+
+final class MutableFactory implements StableMutableFactory
+{
+    public function __construct(\DateTime $date)
+    {
+    }
+}
+
+// @todo mutable DateTime boundary: parameter $date requires DateTime
+$factory = new MutableFactory(new \DateTime('2026-08-01'));
+
+/** @mutable-datetime */
+function markedMutableCall(\DateTime $date): void
+{
+}
+
+// @todo mutable DateTime boundary: parameter $date requires DateTime
+markedMutableCall(new \DateTime('2026-09-01'));

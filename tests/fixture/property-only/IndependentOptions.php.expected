@@ -1,0 +1,18 @@
+<?php
+
+declare(strict_types=1);
+
+final class PropertyOnly
+{
+    private \DateTimeImmutable $stored;
+
+    public function __construct(
+        private \DateTimeImmutable $promoted,
+    ) {
+    }
+
+    public function pass(\DateTime $date): \DateTime
+    {
+        return $date;
+    }
+}

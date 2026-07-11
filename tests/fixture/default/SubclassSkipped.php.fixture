@@ -1,0 +1,16 @@
+<?php
+
+declare(strict_types=1);
+
+class LegacyDate extends \DateTime
+{
+    public function tomorrow(): static
+    {
+        $copy = clone $this;
+        $copy->modify('+1 day');
+
+        return $copy;
+    }
+}
+
+$legacy = new LegacyDate('2026-01-01');

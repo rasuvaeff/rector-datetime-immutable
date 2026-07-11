@@ -1,0 +1,11 @@
+<?php
+
+declare(strict_types=1);
+
+$plain = new \DateTimeImmutable();
+$withArgs = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+$fromFormat = \DateTimeImmutable::createFromFormat('Y-m-d', '2026-01-01');
+$fromInterface = \DateTimeImmutable::createFromInterface($plain);
+$fromTimestamp = \DateTimeImmutable::createFromTimestamp(0);
+$procedural = \date_create_immutable('yesterday');
+$proceduralFormat = \date_create_immutable_from_format('Y-m-d', '2026-01-01');

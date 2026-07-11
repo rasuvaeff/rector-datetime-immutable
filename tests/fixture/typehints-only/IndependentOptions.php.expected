@@ -1,0 +1,15 @@
+<?php
+
+declare(strict_types=1);
+
+final class TypeOnly
+{
+    private \DateTime $stored;
+
+    public function pass(\DateTimeImmutable $date): \DateTimeImmutable
+    {
+        return $date;
+    }
+}
+
+$closure = static fn(\DateTimeImmutable $date): \DateTimeImmutable => $date;
