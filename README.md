@@ -68,7 +68,7 @@ wrapper does this for you.
 
 - PHP 8.3 - 8.5 to run the rules
 - `rector/rector` ^2.5
-- `webmozart/assert` ^1.11
+- `webmozart/assert` ^1.11 || ^2.0
 - `proc_open` enabled when using the convergence wrapper — available in a
   default PHP build unless the host disables it via `disable_functions`
 

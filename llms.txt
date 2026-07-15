@@ -3,7 +3,7 @@
 Rector rules migrating `DateTime` to `DateTimeImmutable` plus an auto-fixer
 for lost mutations (`$d->modify(...);` with the result thrown away).
 Namespace: `Rasuvaeff\RectorDateTimeImmutable`. Requires PHP 8.3 - 8.5,
-rector/rector ^2.5 and webmozart/assert ^1.11.
+rector/rector ^2.5 and webmozart/assert ^1.11 || ^2.0.
 
 ## Install
 
