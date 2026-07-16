@@ -8,6 +8,8 @@
 [![PHP](https://img.shields.io/packagist/dependency-v/rasuvaeff/rector-datetime-immutable/php)](https://packagist.org/packages/rasuvaeff/rector-datetime-immutable)
 [![License](https://img.shields.io/packagist/l/rasuvaeff/rector-datetime-immutable.svg)](LICENSE.md)
 
+[Русская версия](README.ru.md)
+
 [Rector](https://getrector.com) rules that migrate mutable `DateTime` to
 `DateTimeImmutable` — and **auto-fix the lost mutations** the migration
 creates, the classic silent bug where `$date->modify('+1 day');` throws the
