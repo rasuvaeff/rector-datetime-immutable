@@ -1,0 +1,11 @@
+<?php
+
+declare(strict_types=1);
+
+date_modify(bogus: new \DateTime('2026-01-01'));
+
+// @todo mutable DateTime boundary: parameter $object requires DateTime
+date_modify(new \DateTime('2026-02-01'), '+1 day', new \DateTime('2026-02-02'));
+
+$dynamic = 'date_modify';
+$dynamic(new \DateTime('2026-03-01'), '+1 day');
