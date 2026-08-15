@@ -792,7 +792,7 @@ final class DateTimeImmutableRector extends AbstractRector implements Configurab
             $expr instanceof StaticPropertyFetch
             && $expr->class instanceof Name
             && $expr->name instanceof VarLikeIdentifier
-            && \in_array(strtolower($expr->class->toString()), ['self', 'static'], true)
+            && \in_array(strtolower($expr->class->toString()), ['self', 'static'], strict: true)
         ) {
             return $this->propertyStorageKey($expr, $expr->name->toString());
         }
@@ -865,7 +865,7 @@ final class DateTimeImmutableRector extends AbstractRector implements Configurab
             }
         }
 
-        foreach ($classReflection->getTraits(true) as $trait) {
+        foreach ($classReflection->getTraits(recursive: true) as $trait) {
             if ($trait->hasNativeMethod($methodName) && $trait->getNativeMethod($methodName)->isAbstract()) {
                 return true;
             }
@@ -892,7 +892,7 @@ final class DateTimeImmutableRector extends AbstractRector implements Configurab
         $ancestors = [
             ...$classReflection->getParents(),
             ...$classReflection->getInterfaces(),
-            ...array_values($classReflection->getTraits(true)),
+            ...array_values($classReflection->getTraits(recursive: true)),
         ];
 
         foreach ($ancestors as $ancestor) {
@@ -974,19 +974,19 @@ final class DateTimeImmutableRector extends AbstractRector implements Configurab
             && $expr->var->name === 'this'
             && $expr->name instanceof Identifier
         ) {
-            return \in_array($expr->name->toString(), $propertyNames, true);
+            return \in_array($expr->name->toString(), $propertyNames, strict: true);
         }
 
         if (
             !$expr instanceof StaticPropertyFetch
             || !$expr->name instanceof VarLikeIdentifier
-            || !\in_array($expr->name->toString(), $propertyNames, true)
+            || !\in_array($expr->name->toString(), $propertyNames, strict: true)
             || !$expr->class instanceof Name
         ) {
             return false;
         }
 
-        if (\in_array(strtolower($expr->class->toString()), ['self', 'static', 'parent'], true)) {
+        if (\in_array(strtolower($expr->class->toString()), ['self', 'static', 'parent'], strict: true)) {
             return true;
         }
 

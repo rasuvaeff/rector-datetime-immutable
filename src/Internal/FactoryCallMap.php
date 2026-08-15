@@ -43,11 +43,11 @@ final readonly class FactoryCallMap
      */
     public function isProceduralImmutableFactory(string $functionName): bool
     {
-        return \in_array(strtolower($functionName), self::FUNCTION_MAP, true);
+        return \in_array(strtolower($functionName), self::FUNCTION_MAP, strict: true);
     }
 
     public function isSharedStaticFactory(string $methodName): bool
     {
-        return \in_array(strtolower($methodName), self::SHARED_STATIC_FACTORIES, true);
+        return \in_array(strtolower($methodName), self::SHARED_STATIC_FACTORIES, strict: true);
     }
 }

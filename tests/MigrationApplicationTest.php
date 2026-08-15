@@ -242,7 +242,7 @@ final class MigrationApplicationTest
 
         try {
             $exitCode = $this->application($stdout, $stderr)->run(['--format=json', $file]);
-            $payload = json_decode($stdout, true, 512, JSON_THROW_ON_ERROR);
+            $payload = json_decode($stdout, associative: true, depth: 512, flags: JSON_THROW_ON_ERROR);
 
             Assert::same($exitCode, 0);
             Assert::false(str_contains($stdout, 'Migration pass'));
@@ -273,7 +273,7 @@ final class MigrationApplicationTest
 
         try {
             $exitCode = $this->application($stdout, $stderr)->run(['--format=json', $file]);
-            $payload = json_decode($stdout, true, 512, JSON_THROW_ON_ERROR);
+            $payload = json_decode($stdout, associative: true, depth: 512, flags: JSON_THROW_ON_ERROR);
 
             Assert::same($exitCode, 2);
             Assert::same($payload['status'], 'manual-review');

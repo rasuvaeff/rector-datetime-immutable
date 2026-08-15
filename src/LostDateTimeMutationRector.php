@@ -196,7 +196,7 @@ final class LostDateTimeMutationRector extends AbstractRector implements Configu
         }
 
         $assignment = new Assign(new Variable($call->var->name), $call);
-        $assignment->setAttribute(self::UNCONDITIONAL_ASSIGNMENT, true);
+        $assignment->setAttribute(self::UNCONDITIONAL_ASSIGNMENT, value: true);
         $node->expr = $assignment;
 
         return $node;
@@ -281,7 +281,7 @@ final class LostDateTimeMutationRector extends AbstractRector implements Configu
     ): void {
         foreach ($scope->stmts ?? [] as $statement) {
             if ($statement instanceof Expression && $statement->expr instanceof Assign) {
-                $statement->expr->setAttribute(self::UNCONDITIONAL_ASSIGNMENT, true);
+                $statement->expr->setAttribute(self::UNCONDITIONAL_ASSIGNMENT, value: true);
             }
         }
     }
@@ -340,7 +340,7 @@ final class LostDateTimeMutationRector extends AbstractRector implements Configu
             return \in_array(
                 strtolower($expr->name->toString()),
                 ['createfromformat', 'createfrominterface', 'createfrommutable', 'createfromtimestamp'],
-                true,
+                strict: true,
             );
         }
 

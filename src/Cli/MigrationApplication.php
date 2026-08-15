@@ -197,7 +197,7 @@ final readonly class MigrationApplication
                 continue;
             }
 
-            if (in_array($argument, ['--max-passes', '--preflight-config', '--config', '--report-config', '--rector', '--format'], true)
+            if (in_array($argument, ['--max-passes', '--preflight-config', '--config', '--report-config', '--rector', '--format'], strict: true)
             ) {
                 ++$index;
 
@@ -300,7 +300,7 @@ final readonly class MigrationApplication
         }
 
         if ($option === '--format') {
-            if (!in_array($value, self::FORMATS, true)) {
+            if (!in_array($value, self::FORMATS, strict: true)) {
                 throw new InvalidArgumentException('--format must be one of: human, github, json');
             }
 
@@ -788,7 +788,7 @@ final readonly class MigrationApplication
     {
         $root = sys_get_temp_dir() . '/rector-datetime-immutable-dry-' . bin2hex(random_bytes(6));
 
-        if (!mkdir($root, 0o777, true)) {
+        if (!mkdir($root, 0o777, recursive: true)) {
             throw new RuntimeException(sprintf('Unable to create the dry-run workspace "%s"', $root));
         }
 
@@ -821,7 +821,7 @@ final readonly class MigrationApplication
     {
         $targetDirectory = is_file($source) ? \dirname($target) : $target;
 
-        if (!is_dir($targetDirectory) && !mkdir($targetDirectory, 0o777, true)) {
+        if (!is_dir($targetDirectory) && !mkdir($targetDirectory, 0o777, recursive: true)) {
             throw new RuntimeException(sprintf('Unable to create the dry-run directory "%s"', $targetDirectory));
         }
 
@@ -846,7 +846,7 @@ final readonly class MigrationApplication
             $destination = $target . substr($item->getPathname(), \strlen($source));
 
             if ($item->isDir()) {
-                if (!is_dir($destination) && !mkdir($destination, 0o777, true)) {
+                if (!is_dir($destination) && !mkdir($destination, 0o777, recursive: true)) {
                     throw new RuntimeException(sprintf('Unable to create the dry-run directory "%s"', $destination));
                 }
 
@@ -1009,7 +1009,7 @@ final readonly class MigrationApplication
 
         $acceptedExitCodes = $dryRun ? [0, 2] : [0];
 
-        if (!in_array($process['exitCode'], $acceptedExitCodes, true)) {
+        if (!in_array($process['exitCode'], $acceptedExitCodes, strict: true)) {
             throw new RuntimeException(sprintf(
                 "Rector exited with code %d.\n%s",
                 $process['exitCode'],
@@ -1093,7 +1093,7 @@ final readonly class MigrationApplication
     private function decodeRectorOutput(string $output): array
     {
         try {
-            $decoded = json_decode($output, true, 512, JSON_THROW_ON_ERROR);
+            $decoded = json_decode($output, associative: true, depth: 512, flags: JSON_THROW_ON_ERROR);
         } catch (JsonException $exception) {
             throw new RuntimeException('Rector did not return valid JSON', $exception->getCode(), previous: $exception);
         }
