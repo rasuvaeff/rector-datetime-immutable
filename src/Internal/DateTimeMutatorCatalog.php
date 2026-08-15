@@ -29,6 +29,6 @@ final readonly class DateTimeMutatorCatalog
 
     public function isMutator(string $methodName): bool
     {
-        return \in_array(strtolower($methodName), self::MUTATORS, true);
+        return \in_array(strtolower($methodName), self::MUTATORS, strict: true);
     }
 }

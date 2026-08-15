@@ -30,7 +30,7 @@ final readonly class FixtureSuite
         $fixtureDir = __DIR__ . '/fixture/' . $suite;
         $workDir = sys_get_temp_dir() . '/rector-datetime-immutable-' . $suite . '-' . bin2hex(random_bytes(4));
 
-        mkdir($workDir, 0o777, true);
+        mkdir($workDir, 0o777, recursive: true);
 
         try {
             $fixtures = glob($fixtureDir . '/*.php.fixture') ?: [];

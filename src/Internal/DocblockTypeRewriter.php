@@ -112,9 +112,9 @@ final readonly class DocblockTypeRewriter
         while ($end < $length) {
             $character = $line[$end];
 
-            if (in_array($character, ['<', '(', '{', '['], true)) {
+            if (in_array($character, ['<', '(', '{', '['], strict: true)) {
                 ++$depth;
-            } elseif (in_array($character, ['>', ')', '}', ']'], true)) {
+            } elseif (in_array($character, ['>', ')', '}', ']'], strict: true)) {
                 if ($depth === 0) {
                     break;
                 }

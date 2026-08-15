@@ -52,7 +52,7 @@ final class DateTimeImmutableRectorTest
             PHP);
 
         $workDir = sys_get_temp_dir() . '/rector-datetime-immutable-invalid-' . bin2hex(random_bytes(4));
-        mkdir($workDir, 0o777, true);
+        mkdir($workDir, 0o777, recursive: true);
         file_put_contents($workDir . '/Sample.php', "<?php\n\$d = new \\DateTime();\n");
 
         try {

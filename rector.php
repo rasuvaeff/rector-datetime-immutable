@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Rasuvaeff\RectorNamedLiterals\AddNameToLiteralArgumentRector;
 use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\Property\RemoveUselessVarTagRector;
 
@@ -17,4 +18,5 @@ return RectorConfig::configure()
         // suppresses Psalm's MixedAssignment at the untyped getAttribute()
         // boundary (UseImportUsageScanner).
         RemoveUselessVarTagRector::class,
-    ]);
+    ])
+    ->withRules([AddNameToLiteralArgumentRector::class]);
