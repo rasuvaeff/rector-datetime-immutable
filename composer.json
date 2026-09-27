@@ -2,7 +2,7 @@
     "name": "rasuvaeff/rector-datetime-immutable",
     "description": "Rector rules that migrate DateTime to DateTimeImmutable and auto-fix lost mutations whose return value is ignored",
     "license": "BSD-3-Clause",
-    "type": "library",
+    "type": "rector-extension",
     "keywords": [
         "rector",
         "rector-rule",
