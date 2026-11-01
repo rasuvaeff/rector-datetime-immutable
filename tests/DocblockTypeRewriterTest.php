@@ -32,6 +32,32 @@ final class DocblockTypeRewriterTest
         Assert::same((new DocblockTypeRewriter())->rewrittenReturnTag($docText), $expected);
     }
 
+    public function aDocblockThePatternEngineCannotSplitIsLeftAlone(): void
+    {
+        // PCRE keeps compiled patterns (JIT included) in a bounded cache and a
+        // JIT-compiled match ignores the backtrack limit: evict, then recompile
+        // without JIT so that the limit applies to the split.
+        for ($i = 0; $i < 5_000; ++$i) {
+            preg_match('/evict' . $i . '/', '');
+        }
+
+        $jit = ini_set('pcre.jit', '0');
+        $limit = ini_set('pcre.backtrack_limit', '1');
+        set_error_handler(static function (int $severity, string $message): never {
+            throw new \ErrorException($message, 0, $severity);
+        });
+
+        try {
+            $rewritten = (new DocblockTypeRewriter())->rewrittenVarTag("/**\n * @var DateTime\n */");
+        } finally {
+            restore_error_handler();
+            ini_set('pcre.backtrack_limit', (string) $limit);
+            ini_set('pcre.jit', (string) $jit);
+        }
+
+        Assert::null($rewritten);
+    }
+
     public static function varTagProvider(): iterable
     {
         yield 'plain type' => [
