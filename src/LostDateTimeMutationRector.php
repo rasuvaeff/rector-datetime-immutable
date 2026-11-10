@@ -396,10 +396,8 @@ final class LostDateTimeMutationRector extends AbstractRector implements Configu
             return;
         }
 
-        foreach ($expr->items as $item) {
-            if ($item !== null) {
-                $this->forgetAssignedVariables($item->value, $context);
-            }
+        foreach (array_filter($expr->items) as $item) {
+            $this->forgetAssignedVariables($item->value, $context);
         }
     }
 
