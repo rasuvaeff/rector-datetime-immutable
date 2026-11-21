@@ -674,13 +674,11 @@ final class DateTimeImmutableRector extends AbstractRector implements Configurab
     private function protectMutableBoundariesWithin(FileNode $file): void
     {
         foreach ($this->nodeFinder->findInstanceOf($file->stmts, FunctionLike::class) as $functionLike) {
-            if ($functionLike instanceof Node) {
-                $scope = ScopeFetcher::fetch($functionLike);
-                $this->lexicalRanges[$scope->getFile()][] = [
-                    'start' => $functionLike->getStartFilePos(),
-                    'end' => $functionLike->getEndFilePos(),
-                ];
-            }
+            $scope = ScopeFetcher::fetch($functionLike);
+            $this->lexicalRanges[$scope->getFile()][] = [
+                'start' => $functionLike->getStartFilePos(),
+                'end' => $functionLike->getEndFilePos(),
+            ];
         }
 
         $calls = $this->nodeFinder->find(
